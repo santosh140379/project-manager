@@ -1,0 +1,1783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Implementation Projects | PM: Santosh Nair</title>
+    <!-- Chart.js & Date Adapter CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: #151c2c;
+            --card-border: #232d42;
+            --accent-blue: #38bdf8;
+            --accent-green: #34d399;
+            --accent-orange: #fb923c;
+            --accent-purple: #c084fc;
+            --accent-pink: #f472b6;
+            --accent-red: #f87171;
+            --accent-gold: #f59e0b;
+            --accent-gray: #64748b;
+            --text-main: #f1f5f9;
+            --text-sub: #94a3b8;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); padding: 24px; line-height: 1.5; }
+
+        /* Site View Container Engine */
+        .site-view { display: none; }
+        .site-view.active { display: block; }
+
+        /* Master Portal Header */
+        .portal-header {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.08), rgba(52, 211, 153, 0.08));
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .portal-title h1 { font-size: 1.8rem; color: #fff; display: flex; align-items: center; gap: 12px; }
+        .portal-title p { color: var(--text-sub); font-size: 0.95rem; margin-top: 4px; }
+        
+        .pm-badge {
+            background: rgba(56, 189, 248, 0.15);
+            border: 1px solid var(--accent-blue);
+            color: var(--accent-blue);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        /* Project Cards Grid */
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+        }
+
+        .project-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .project-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent-blue);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.4);
+        }
+
+        .project-card.active-link::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 4px; height: 100%;
+            background: var(--accent-blue);
+        }
+
+        .project-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .project-title h3 { font-size: 1.3rem; color: #fff; margin-bottom: 4px; }
+        .project-title p { font-size: 0.83rem; color: var(--text-sub); }
+
+        .project-metrics {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin: 18px 0;
+            padding: 14px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .project-metric-item span { font-size: 0.72rem; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.04em; }
+        .project-metric-item p { font-size: 1.1rem; font-weight: 700; margin-top: 3px; }
+
+        .project-action-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 8px;
+            padding-top: 12px;
+            border-top: 1px solid var(--card-border);
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--accent-blue);
+        }
+
+        /* Status Pills */
+        .status-pill {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .pill-blue { background: rgba(56, 189, 248, 0.15); color: var(--accent-blue); border: 1px solid var(--accent-blue); }
+        .pill-green { background: rgba(52, 211, 153, 0.15); color: var(--accent-green); border: 1px solid var(--accent-green); }
+        .pill-orange { background: rgba(251, 146, 60, 0.15); color: var(--accent-orange); border: 1px solid var(--accent-orange); }
+
+        /* Nav Back Button for Dashboard */
+        .back-nav-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            color: var(--text-main);
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: all 0.2s ease;
+        }
+
+        .back-nav-btn:hover {
+            border-color: var(--accent-blue);
+            color: var(--accent-blue);
+            transform: translateX(-2px);
+        }
+
+        /* Executive Header Styling */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--card-border);
+            margin-bottom: 20px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .header-title h1 { font-size: 1.5rem; color: #fff; display: flex; align-items: center; gap: 10px; }
+        .header-title p { color: var(--text-sub); font-size: 0.85rem; margin-top: 2px; }
+
+        /* Styled Total Health Badge Matching Image */
+        .badge-health {
+            background: rgba(52, 211, 153, 0.1);
+            border: 1.5px solid var(--accent-green);
+            color: var(--accent-green);
+            padding: 8px 24px;
+            border-radius: 30px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 0 12px rgba(52, 211, 153, 0.15);
+        }
+
+        /* Navigation Tabs */
+        .tab-container {
+            display: flex;
+            gap: 12px;
+            border-bottom: 1px solid var(--card-border);
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            color: var(--text-sub);
+            padding: 10px 18px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn:hover { color: var(--text-main); }
+        .tab-btn.active {
+            color: var(--accent-blue);
+            border-bottom-color: var(--accent-blue);
+        }
+
+        /* Tab Content Engine */
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* Top Metrics Row */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .metric-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 16px;
+            border-radius: 12px;
+            text-align: center;
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+
+        .metric-card.interactive { cursor: pointer; }
+        .metric-card.interactive:hover {
+            transform: translateY(-3px);
+            border-color: var(--accent-blue);
+        }
+
+        .metric-card span { font-size: 0.72rem; text-transform: uppercase; color: var(--text-sub); letter-spacing: 0.05em; }
+        .metric-card .val { font-size: 1.5rem; font-weight: 700; margin-top: 4px; }
+
+        /* Dashboard Layout Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2.3fr 1fr;
+            gap: 24px;
+            align-items: start;
+        }
+
+        @media (max-width: 992px) { 
+            .dashboard-grid { grid-template-columns: 1fr; }
+            header { flex-direction: column; align-items: flex-start; gap: 16px; }
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .card h2 { font-size: 1.1rem; margin-bottom: 16px; color: #fff; display: flex; align-items: center; gap: 10px; }
+
+        .section-header {
+            font-size: 0.98rem;
+            color: var(--accent-blue);
+            border-bottom: 1px solid var(--card-border);
+            padding-bottom: 6px;
+            margin-top: 20px;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        /* Sidebar Link Button List Styling */
+        .sidebar-links-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .sidebar-link-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            color: var(--text-main);
+            text-decoration: none;
+            font-size: 0.88rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .sidebar-link-btn:hover {
+            background: rgba(56, 189, 248, 0.08);
+            border-color: var(--accent-blue);
+            color: #fff;
+            transform: translateX(2px);
+        }
+
+        .sidebar-link-btn .btn-icon {
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        /* Split Section Layout for Analytics Tab */
+        .split-analytics-row {
+            display: grid;
+            grid-template-columns: 1fr 1.8fr;
+            gap: 20px;
+            align-items: center;
+        }
+
+        @media (max-width: 900px) { .split-analytics-row { grid-template-columns: 1fr; } }
+
+        .analytics-chart-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .analytics-bar-container { position: relative; height: 220px; width: 100%; }
+
+        /* Payment terms table formatting */
+        .payment-milestone-table td { padding: 10px; font-size: 0.85rem; }
+        .payment-summary-box {
+            background: rgba(245, 158, 11, 0.08);
+            border: 1px solid rgba(245, 158, 11, 0.25);
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-size: 0.82rem;
+            color: var(--text-sub);
+            margin-top: 14px;
+            line-height: 1.5;
+        }
+
+        /* Charts Layout */
+        .charts-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .chart-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @media (max-width: 768px) { .charts-row { grid-template-columns: 1fr; } }
+
+        .chart-container { position: relative; height: 230px; width: 100%; }
+        .gantt-container { position: relative; height: 520px; width: 100%; }
+        .milestone-gantt-container { position: relative; height: 320px; width: 100%; }
+
+        /* Tables & Lists */
+        table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 0.85rem; }
+        th, td { text-align: left; padding: 10px; border-bottom: 1px solid var(--card-border); }
+        th { color: var(--text-sub); font-weight: 500; font-size: 0.78rem; text-transform: uppercase; }
+
+        /* Doc Link Button Styling */
+        .doc-link-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: rgba(56, 189, 248, 0.12);
+            border: 1px solid var(--accent-blue);
+            color: var(--accent-blue);
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .doc-link-btn:hover {
+            background: var(--accent-blue);
+            color: #0b0f19;
+            transform: translateY(-1px);
+        }
+
+        /* Compact File Icon Cards Styling */
+        .file-card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 12px;
+            margin-top: 8px;
+            margin-bottom: 16px;
+        }
+
+        .file-icon-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 10px 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            text-decoration: none;
+            color: var(--text-main);
+            transition: all 0.2s ease;
+        }
+
+        .file-icon-card:hover {
+            background: rgba(56, 189, 248, 0.08);
+            border-color: var(--accent-blue);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .file-type-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.82rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .icon-pptx { background: rgba(248, 113, 113, 0.15); border: 1px solid var(--accent-red); color: var(--accent-red); }
+        .icon-pdf { background: rgba(56, 189, 248, 0.15); border: 1px solid var(--accent-blue); color: var(--accent-blue); }
+        .icon-doc { background: rgba(52, 211, 153, 0.15); border: 1px solid var(--accent-green); color: var(--accent-green); }
+
+        .file-info { overflow: hidden; }
+        .file-info h4 { font-size: 0.85rem; color: #fff; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .file-info p { font-size: 0.74rem; color: var(--text-sub); }
+
+        /* Modal Popup Styling */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.75);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            width: 100%;
+            max-width: 850px;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--card-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 { font-size: 1.1rem; color: #fff; }
+        .modal-close { background: none; border: none; color: var(--text-sub); font-size: 1.5rem; cursor: pointer; }
+        .modal-close:hover { color: #fff; }
+
+        .modal-body { padding: 20px; overflow-y: auto; }
+    </style>
+</head>
+<body>
+
+    <!-- ================= SITE VIEW 1: IMPLEMENTATION PROJECTS LANDING PORTAL ================= -->
+    <div id="portal-site" class="site-view active">
+        <div class="portal-header">
+            <div class="portal-title">
+                <h1>⚡ IMPLEMENTATION PROJECTS</h1>
+                <p>ProFinda Enterprise Delivery Operations & Strategic Account Management</p>
+            </div>
+            
+            <div class="pm-badge">👤 Project Manager: Santosh Nair</div>
+        </div>
+
+        <div class="projects-grid">
+            <!-- delaware Belgium Project Card -->
+            <div class="project-card active-link" onclick="openProjectSite('delaware-site')">
+                <div>
+                    <div class="project-card-header">
+                        <div class="project-title">
+                            <h3>delaware Belgium</h3>
+                            <p>ProFinda Implementation & Workforce Optimisation</p>
+                        </div>
+                        <span class="status-pill pill-blue">In Progress</span>
+                    </div>
+
+                    <div class="project-metrics">
+                        <div class="project-metric-item">
+                            <span>Progress</span>
+                            <p style="color: var(--accent-blue);">27.3%</p>
+                        </div>
+                        <div class="project-metric-item">
+                            <span>Contract Revenue</span>
+                            <p style="color: var(--accent-gold);">€229,332.00</p>
+                        </div>
+                        <div class="project-metric-item" style="grid-column: span 2; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 8px; margin-top: 4px;">
+                            <span>Target Go-Live Date</span>
+                            <p style="color: var(--accent-green); font-size: 1.05rem;">08/03/2027</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="project-action-bar">
+                    <span>View Executive Dashboard</span>
+                    <span>➔</span>
+                </div>
+            </div>
+
+            <!-- KPMG Ireland Project Card -->
+            <div class="project-card" onclick="alert('KPMG Ireland Dashboard: Access Restricted / On Hold')">
+                <div>
+                    <div class="project-card-header">
+                        <div class="project-title">
+                            <h3>KPMG Ireland</h3>
+                            <p>Enterprise Resource Optimisation Platform</p>
+                        </div>
+                        <span class="status-pill pill-orange">On Hold</span>
+                    </div>
+
+                    <div class="project-metrics">
+                        <div class="project-metric-item">
+                            <span>Progress</span>
+                            <p style="color: var(--accent-orange);">18.5%</p>
+                        </div>
+                        <div class="project-metric-item">
+                            <span>Contract Revenue</span>
+                            <p style="color: var(--accent-gold);">€554,976.00</p>
+                        </div>
+                        <div class="project-metric-item" style="grid-column: span 2; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 8px; margin-top: 4px;">
+                            <span>Target Go-Live Date</span>
+                            <p style="color: var(--text-sub); font-size: 1.05rem;">15/06/2027</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="project-action-bar" style="color: var(--text-sub);">
+                    <span>Overview Portfolio</span>
+                    <span>🔒</span>
+                </div>
+            </div>
+
+            <!-- Cognitus Project Card -->
+            <div class="project-card" onclick="alert('Cognitus Dashboard: Project Complete')">
+                <div>
+                    <div class="project-card-header">
+                        <div class="project-title">
+                            <h3>Cognitus</h3>
+                            <p>SAP SuccessFactors & S/4HANA Integration Stream</p>
+                        </div>
+                        <span class="status-pill pill-green">Complete</span>
+                    </div>
+
+                    <div class="project-metrics">
+                        <div class="project-metric-item">
+                            <span>Progress</span>
+                            <p style="color: var(--accent-green);">100.0%</p>
+                        </div>
+                        <div class="project-metric-item">
+                            <span>Contract Revenue</span>
+                            <p style="color: var(--accent-gold);">$65,000.00</p>
+                        </div>
+                        <div class="project-metric-item" style="grid-column: span 2; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 8px; margin-top: 4px;">
+                            <span>Actual Go-Live Date</span>
+                            <p style="color: var(--accent-green); font-size: 1.05rem;">24/02/2025</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="project-action-bar" style="color: var(--accent-green);">
+                    <span>Project Complete</span>
+                    <span>✓</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ================= SITE VIEW 2: DELAWARE PROJECT DASHBOARD ================= -->
+    <div id="delaware-site" class="site-view">
+        <!-- Back Navigation to Master Implementation Projects Portal -->
+        <button class="back-nav-btn" onclick="openProjectSite('portal-site')">
+            ← Back to Implementation Projects Portal
+        </button>
+
+        <!-- Executive Header with Exact Pill Badge Matching Screenshot -->
+        <header>
+            <div class="header-left">
+                <div class="header-title">
+                    <h1>⚡ DELAWARE PROJECT DASHBOARD</h1>
+                    <p>ProFinda Implementation Portal | Project Manager: Santosh Nair</p>
+                </div>
+            </div>
+            <!-- Formatted Total Health Badge -->
+            <div class="badge-health">● Total Health: GREEN (On Track)</div>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <div class="tab-container">
+            <button class="tab-btn active" onclick="openTab(event, 'main-dashboard')">📊 Main Dashboard</button>
+            <button class="tab-btn" onclick="openTab(event, 'workstream-analytics')">📈 Workstreams & Phase Analytics</button>
+            <button class="tab-btn" onclick="openTab(event, 'milestones-governance')">🚩 Milestones & Governance</button>
+            <button class="tab-btn" onclick="openTab(event, 'links-hub')">🔗 Links</button>
+            <button class="tab-btn" onclick="openTab(event, 'documentation-hub')">📑 Documentation</button>
+            <button class="tab-btn" onclick="openTab(event, 'poap-gantt')">🗺️ POAP</button>
+        </div>
+
+        <!-- TAB 1: MAIN DASHBOARD -->
+        <div id="main-dashboard" class="tab-content active">
+            <!-- Top Metrics Row with Total Contract Revenue Header -->
+            <div class="metrics-grid">
+                <div class="metric-card" style="border-color: rgba(245, 158, 11, 0.4);">
+                    <span>Total Contract Revenue</span>
+                    <div class="val" style="color: var(--accent-gold);">€229,332.00</div>
+                </div>
+                <div class="metric-card">
+                    <span>Project Progress</span>
+                    <div class="val" style="color: var(--accent-green);">27.3%</div>
+                </div>
+                <div class="metric-card">
+                    <span>Total Tasks</span>
+                    <div class="val">132</div>
+                </div>
+                <div class="metric-card">
+                    <span>Completed Tasks</span>
+                    <div class="val" style="color: var(--accent-green);">36</div>
+                </div>
+                <div class="metric-card">
+                    <span>Scheduled Tasks</span>
+                    <div class="val" style="color: var(--accent-orange);">10</div>
+                </div>
+                <div class="metric-card interactive" onclick="showTasksModal('Due14')">
+                    <span>Tasks Due (14 Days)</span>
+                    <div class="val" style="color: var(--accent-blue);">7 🔍</div>
+                </div>
+                <div class="metric-card interactive" onclick="showTasksModal('Overdue')">
+                    <span>Overdue Tasks</span>
+                    <div class="val" style="color: var(--accent-green);">0 🔍</div>
+                </div>
+            </div>
+
+            <div class="dashboard-grid">
+                <!-- Main Content (Left Column) -->
+                <div class="main-content">
+                    <!-- Graphical Delivery Breakdown -->
+                    <div class="card">
+                        <h2>📊 Graphical Delivery Breakdown</h2>
+                        <div class="charts-row">
+                            <div class="chart-box">
+                                <p style="text-align: center; color: var(--text-sub); font-size: 0.8rem; margin-bottom: 8px;">Task Status Distribution</p>
+                                <div class="chart-container">
+                                    <canvas id="taskStatusPieChart"></canvas>
+                                </div>
+                            </div>
+                            <div class="chart-box">
+                                <p style="text-align: center; color: var(--text-sub); font-size: 0.8rem; margin-bottom: 8px;">Phase Progress (%)</p>
+                                <div class="chart-container">
+                                    <canvas id="phaseBarChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Immediate Focus Table -->
+                    <div class="card">
+                        <h2>📅 Immediate Focus (Next 7-14 Days)</h2>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Task Name</th>
+                                    <th>Phase</th>
+                                    <th>Owner</th>
+                                    <th>Start Date</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                               <td>Design Sessions #1 - Profile & Skills</td>
+                                <td>Design</td>
+                                <td>Praveen Singh</td>
+                                <td>21/09/26</td>
+                                <td><span class="status-pill pill-orange">Scheduled</span></td>
+                            </tr>
+                            <tr>
+                                <td>Complete design decisions Profile & Skills</td>
+                                <td>Design</td>
+                                <td>Delaware</td>
+                                <td>21/09/26</td>
+                                <td><span class="status-pill pill-gray">Not Started</span></td>
+                            </tr>
+                            <tr>
+                                <td>Grant access to client on Integration environment</td>
+                                <td>Design</td>
+                                <td>Praveen Singh</td>
+                                <td>25/09/26</td>
+                                <td><span class="status-pill pill-gray">Not Started</span></td>
+                            </tr>
+                            <tr>
+                                <td>Design sessions #2 Engagements</td>
+                                <td>Design</td>
+                                <td>Praveen Singh</td>
+                                <td>25/09/26</td>
+                                <td><span class="status-pill pill-orange">Scheduled</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Commercial Payment Terms Card -->
+                <div class="card" style="border-color: rgba(245, 158, 11, 0.35);">
+                    <h2>💶 Commercial Payment Terms & Revenue Milestones</h2>
+                    <table class="payment-milestone-table">
+                        <thead>
+                            <tr>
+                                <th>Payment Event / Milestone</th>
+                                <th>Expected Target Date</th>
+                                <th>Allocation (%)</th>
+                                <th>Value (EUR)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Solution Design Sign-off (SDD)</strong></td>
+                                <td><span style="color: var(--accent-blue); font-weight: 600;">23/10/2026</span></td>
+                                <td><strong style="color: var(--accent-blue);">40%</strong></td>
+                                <td>€91,732.80</td>
+                            </tr>
+                            <tr>
+                                <td><strong>User Acceptance Testing Sign-off (UAT)</strong></td>
+                                <td><span style="color: var(--accent-blue); font-weight: 600;">15/02/2027</span></td>
+                                <td><strong style="color: var(--accent-blue);">40%</strong></td>
+                                <td>€91,732.80</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Completion of HyperCare & BAU Handover</strong></td>
+                                <td><span style="color: var(--accent-green); font-weight: 600;">30/03/2027</span></td>
+                                <td><strong style="color: var(--accent-green);">20%</strong></td>
+                                <td>€45,866.40</td>
+                            </tr>
+                            <tr style="background: rgba(255,255,255,0.02);">
+                                <td><strong>Total Fixed Implementation Fee</strong></td>
+                                <td><strong>08/03/2027 (Go-Live)</strong></td>
+                                <td><strong>100%</strong></td>
+                                <td><strong style="color: var(--accent-gold);">€229,332.00</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="payment-summary-box">
+                        <strong>📌 Payment Governance & Terms:</strong> Payment terms are net 30 days from invoice date via BACS. Invoices are triggered automatically upon formal milestone sign-off or within 10 business days of submission.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar (Right Column) -->
+            <div class="sidebar">
+                <!-- Project Google Drives Box -->
+                <div class="card">
+                    <h2>📁 Project Google Drives</h2>
+                    <div class="sidebar-links-list">
+                        <a href="https://drive.google.com/drive/folders/1sIBXxpXrki3FnT2Qnmp-b8jeePwO62od" target="_blank" class="sidebar-link-btn">
+                            <span class="btn-icon">📁</span>
+                            <span>Planning G Drive</span>
+                        </a>
+                        <a href="https://drive.google.com/drive/folders/1v7pWdPNOeW3fY2PZpMLgZUpYSAxidIEi" target="_blank" class="sidebar-link-btn">
+                            <span class="btn-icon">📁</span>
+                            <span>Design G Drive Folder</span>
+                        </a>
+                        <a href="https://drive.google.com/drive/folders/1lpIX__987IxJIEP1sWXkfZoqP-aF9QdX" target="_blank" class="sidebar-link-btn">
+                            <span class="btn-icon">📁</span>
+                            <span>Build G Drive Folder</span>
+                        </a>
+                        <a href="https://drive.google.com/drive/folders/1LA75wKPnntvb_rG6GHbhEVUDta9WieE5" target="_blank" class="sidebar-link-btn">
+                            <span class="btn-icon">📁</span>
+                            <span>Test G Drive Folder</span>
+                        </a>
+                        <a href="https://drive.google.com/drive/folders/1ezXT_fQ7Eq70prFbIjo1C5H0_wrd5glb" target="_blank" class="sidebar-link-btn">
+                            <span class="btn-icon">📁</span>
+                            <span>Go-Live Folder</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Tool Ecosystem & Links Box -->
+                <div class="card">
+                    <h2>🔗 Tool Ecosystem & Links</h2>
+                    <div class="sidebar-links-list">
+                        <a href="https://app.smartsheet.com/sheets/4gmp2pFgG5qwPvJvCP4m4wM4WQX2gcgCQc4gr2x1" target="_blank" class="sidebar-link-btn">
+                            <span class="btn-icon">📊</span>
+                            <span>Project Plan</span>
+                        </a>
+                        <a href="https://profinda.atlassian.net/jira/software/c/projects/IMP/boards/1314" target="_blank" class="sidebar-link-btn">
+                            <span class="btn-icon">📌</span>
+                            <span>Jira Project Board</span>
+                        </a>
+                        <a href="https://app.hubspot.com/contacts/2427130/record/0-3/61038789433" target="_blank" class="sidebar-link-btn">
+                            <span class="btn-icon">🟧</span>
+                            <span>HubSpot Portal</span>
+                        </a>
+                        <a href="https://delaware.ui-integration.profinda.com" target="_blank" class="sidebar-link-btn">
+                            <span class="btn-icon">🌐</span>
+                            <span>ProFinda Integration Site</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 2: WORKSTREAMS & PHASE ANALYTICS -->
+    <div id="workstream-analytics" class="tab-content">
+        <div class="card">
+            <h2>📈 Workstream Completion Analytics</h2>
+            <div class="split-analytics-row">
+                <div class="analytics-chart-box">
+                    <p style="text-align: center; color: var(--text-sub); font-size: 0.8rem; margin-bottom: 8px;">Workstream % Complete</p>
+                    <div class="analytics-bar-container">
+                        <canvas id="workstreamBarChart"></canvas>
+                    </div>
+                </div>
+                <div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Workstream</th>
+                                <th>Total Tasks</th>
+                                <th>Complete</th>
+                                <th>In Progress</th>
+                                <th>Not Started</th>
+                                <th>Scheduled</th>
+                                <th>Overdue</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Functional</strong></td>
+                                <td>66</td>
+                                <td>25</td>
+                                <td>0</td>
+                                <td>33</td>
+                                <td>8</td>
+                                <td>0</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Configuration</strong></td>
+                                <td>22</td>
+                                <td>11</td>
+                                <td>0</td>
+                                <td>11</td>
+                                <td>0</td>
+                                <td>0</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Integration</strong></td>
+                                <td>13</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>11</td>
+                                <td>2</td>
+                                <td>0</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Data Migration</strong></td>
+                                <td>15</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>15</td>
+                                <td>0</td>
+                                <td>0</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Testing</strong></td>
+                                <td>16</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>16</td>
+                                <td>0</td>
+                                <td>0</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>📊 Phase Completion Analytics</h2>
+            <div class="split-analytics-row">
+                <div class="analytics-chart-box">
+                    <p style="text-align: center; color: var(--text-sub); font-size: 0.8rem; margin-bottom: 8px;">Phase % Complete</p>
+                    <div class="analytics-bar-container">
+                        <canvas id="phaseAnalyticsBarChart"></canvas>
+                    </div>
+                </div>
+                <div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Phase</th>
+                                <th>Total Tasks</th>
+                                <th>Complete</th>
+                                <th>In Progress</th>
+                                <th>Not Started</th>
+                                <th>Scheduled</th>
+                                <th>Overdue</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Planning</strong></td>
+                                <td>36</td>
+                                <td>36</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>0</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Design</strong></td>
+                                <td>34</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>24</td>
+                                <td>10</td>
+                                <td>0</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Build</strong></td>
+                                <td>11</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>11</td>
+                                <td>0</td>
+                                <td>0</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Test</strong></td>
+                                <td>24</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>24</td>
+                                <td>0</td>
+                                <td>0</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Deploy</strong></td>
+                                <td>22</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>22</td>
+                                <td>0</td>
+                                <td>0</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Hypercare</strong></td>
+                                <td>5</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>5</td>
+                                <td>0</td>
+                                <td>0</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 3: MILESTONES SORTED OLDEST TO NEWEST -->
+    <div id="milestones-governance" class="tab-content">
+        <div class="card">
+            <h2>🚩 Key Milestones Roadmap (Target End Dates)</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Milestone Name</th>
+                        <th>Category</th>
+                        <th>Start Date</th>
+                        <th>Target End Date</th>
+                        <th>Status</th>
+                        <th>Schedule Health</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Planning</strong></td>
+                        <td>Milestone</td>
+                        <td>01/07/2026</td>
+                        <td>11/09/2026</td>
+                        <td><span class="status-pill pill-green">Complete</span></td>
+                        <td><span style="color: var(--accent-green);">● Green</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>SDD Sign-off</strong></td>
+                        <td>Milestone</td>
+                        <td>23/10/2026</td>
+                        <td>23/10/2026</td>
+                        <td><span class="status-pill pill-gray">Not Started</span></td>
+                        <td><span style="color: var(--accent-green);">● Green</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Design</strong></td>
+                        <td>Milestone</td>
+                        <td>21/09/2026</td>
+                        <td>27/10/2026</td>
+                        <td><span class="status-pill pill-gray">Not Started</span></td>
+                        <td><span style="color: var(--accent-green);">● Green</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>UAT Kick-off</strong></td>
+                        <td>Milestone</td>
+                        <td>18/01/2027</td>
+                        <td>18/01/2027</td>
+                        <td><span class="status-pill pill-gray">Not Started</span></td>
+                        <td><span style="color: var(--accent-green);">● Green</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Training sign-off</strong></td>
+                        <td>Milestone</td>
+                        <td>29/01/2027</td>
+                        <td>29/01/2027</td>
+                        <td><span class="status-pill pill-gray">Not Started</span></td>
+                        <td><span style="color: var(--accent-green);">● Green</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Go/No-Go Decision</strong></td>
+                        <td>Milestone</td>
+                        <td>05/03/2027</td>
+                        <td>05/03/2027</td>
+                        <td><span class="status-pill pill-gray">Not Started</span></td>
+                        <td><span style="color: var(--accent-green);">● Green</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Go Live</strong></td>
+                        <td>Milestone</td>
+                        <td>08/03/2027</td>
+                        <td>08/03/2027</td>
+                        <td><span class="status-pill pill-gray">Not Started</span></td>
+                        <td><span style="color: var(--accent-green);">● Green</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Project Close Client Sign Off</strong></td>
+                        <td>Milestone</td>
+                        <td>30/03/2027</td>
+                        <td>30/03/2027</td>
+                        <td><span class="status-pill pill-gray">Not Started</span></td>
+                        <td><span style="color: var(--accent-green);">● Green</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- TAB 4: LINKS TAB -->
+    <div id="links-hub" class="tab-content">
+        <div class="card">
+            <h2>🔗 Project External Links & System Repositories</h2>
+            <p style="color: var(--text-sub); font-size: 0.85rem; margin-bottom: 16px;">
+                Master listing of project tasks linked directly to Column L Google Drive folders, meeting decks, and Jira tickets from the project plan.
+            </p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Task Name</th>
+                        <th>Meeting Notes / Document Link</th>
+                    </tr>
+                </thead>
+                <tbody id="linksTableBody">
+                    <!-- Populated dynamically -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- TAB 5: DOCUMENTATION TAB -->
+    <div id="documentation-hub" class="tab-content">
+        <div class="card">
+            <h2>📑 Project Documentation Hub</h2>
+            <p style="color: var(--text-sub); font-size: 0.85rem; margin-bottom: 16px;">
+                Click any document block below to download or view project contracts, session presentations, and governance frameworks.
+            </p>
+            
+            <!-- SECTION 1: SALES & SOW -->
+            <div class="section-header">📄 Sales & SOW Documents</div>
+            <div class="file-card-grid">
+                <a href="Delaware_SOW_v2.0.pdf" target="_blank" class="file-icon-card">
+                    <div class="file-type-icon icon-pdf">PDF</div>
+                    <div class="file-info">
+                        <h4>Delaware_SOW_v2.0.pdf</h4>
+                        <p>Statement of Work • Version 2.0 • Signed</p>
+                    </div>
+                </a>
+
+                <a href="Delaware_ Sales to Service Handover.pdf" target="_blank" class="file-icon-card">
+                    <div class="file-type-icon icon-doc">PDF</div>
+                    <div class="file-info">
+                        <h4>Delaware_ Sales to Service Handover.pdf</h4>
+                        <p>Sales to Service Handover Summary</p>
+                    </div>
+                </a>
+            </div>
+
+            <!-- SECTION 2: INITIAL PLANNING SESSIONS -->
+            <div class="section-header">🖥️ Initial Planning Sessions</div>
+            <div class="file-card-grid">
+                <a href="1.Technical Discovery session (260903).pptx" download="1.Technical Discovery session (260903).pptx" class="file-icon-card">
+                    <div class="file-type-icon icon-pptx">PPT</div>
+                    <div class="file-info">
+                        <h4>1.Technical Discovery session (260903).pptx</h4>
+                        <p>Technical Discovery • 03/09/2026</p>
+                    </div>
+                </a>
+
+                <a href="2.Reverse demo (260904).pptx" download="2.Reverse demo (260904).pptx" class="file-icon-card">
+                    <div class="file-type-icon icon-pptx">PPT</div>
+                    <div class="file-info">
+                        <h4>2.Reverse demo (260904).pptx</h4>
+                        <p>Reverse Demo Walkthrough • 04/09/2026</p>
+                    </div>
+                </a>
+
+                <a href="3.Delaware-High level demo Q&A.docx.pdf" target="_blank" class="file-icon-card">
+                    <div class="file-type-icon icon-pdf">PDF</div>
+                    <div class="file-info">
+                        <h4>3.Delaware-High level demo Q&A.pdf</h4>
+                        <p>High Level Demo Q&A Notes</p>
+                    </div>
+                </a>
+
+                <a href="4.Delaware-Planning & Change Management (260909).pptx" download="4.Delaware-Planning & Change Management (260909).pptx" class="file-icon-card">
+                    <div class="file-type-icon icon-pptx">PPT</div>
+                    <div class="file-info">
+                        <h4>4.Planning & Change Management (260909).pptx</h4>
+                        <p>Planning & Change Management • 09/09/2026</p>
+                    </div>
+                </a>
+
+                <a href="5.Delaware-ProFinda Implementation Kick Off (260911).pptx" download="5.Delaware-ProFinda Implementation Kick Off (260911).pptx" class="file-icon-card">
+                    <div class="file-type-icon icon-pptx">PPT</div>
+                    <div class="file-info">
+                        <h4>5.Implementation Kick Off (260911).pptx</h4>
+                        <p>Implementation Kick Off Deck • 11/09/2026</p>
+                    </div>
+                </a>
+            </div>
+
+            <!-- SECTION 3: FRAMEWORK -->
+            <div class="section-header">📐 Project Frameworks</div>
+            <div class="file-card-grid">
+                <a href="1.Delaware - Implemention Planning Framework.pdf" target="_blank" class="file-icon-card">
+                    <div class="file-type-icon icon-pdf">PDF</div>
+                    <div class="file-info">
+                        <h4>1.Implementation Planning Framework.pdf</h4>
+                        <p>Planning Phase Structure & Guidelines</p>
+                    </div>
+                </a>
+
+                <a href="2.Configuration Design and Refinement Framework.pdf" target="_blank" class="file-icon-card">
+                    <div class="file-type-icon icon-pdf">PDF</div>
+                    <div class="file-info">
+                        <h4>2.Configuration Design Framework.pdf</h4>
+                        <p>Configuration Workshop Specifications</p>
+                    </div>
+                </a>
+
+                <a href="3.Delaware - Integration Framework.pdf" target="_blank" class="file-icon-card">
+                    <div class="file-type-icon icon-pdf">PDF</div>
+                    <div class="file-info">
+                        <h4>3.Delaware - Integration Framework.pdf</h4>
+                        <p>System Integration & API Guidelines</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 6: POAP -->
+    <div id="poap-gantt" class="tab-content">
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <span>Project Start Date</span>
+                <div class="val" style="color: var(--accent-blue);">01/07/2026</div>
+            </div>
+            <div class="metric-card">
+                <span>Target Go-Live</span>
+                <div class="val" style="color: var(--accent-green);">08/03/2027</div>
+            </div>
+            <div class="metric-card">
+                <span>Days to Go-Live</span>
+                <div class="val" style="color: var(--accent-blue);">171 Days</div>
+            </div>
+            <div class="metric-card interactive" onclick="showTasksModal('ProFinda')">
+                <span>ProFinda Owned Tasks</span>
+                <div class="val" style="color: var(--accent-purple);">60 Tasks 🔍</div>
+            </div>
+            <div class="metric-card interactive" onclick="showTasksModal('Delaware')">
+                <span>Delaware Owned Tasks</span>
+                <div class="val" style="color: var(--accent-orange);">39 Tasks 🔍</div>
+            </div>
+            <div class="metric-card interactive" onclick="showTasksModal('Critical')">
+                <span>Critical Path Items</span>
+                <div class="val" style="color: var(--accent-pink);">20 Items 🔍</div>
+            </div>
+        </div>
+
+        <!-- Separate Chart 1: Project Tasks Timeline -->
+        <div class="card">
+            <h2>🗺️ Project Tasks Schedule (% Completion along Axis)</h2>
+            <p style="color: var(--text-sub); font-size: 0.85rem; margin-bottom: 16px;">
+                Month timeline placed on the <strong>TOP axis</strong> displaying phase activity ranges and percentage completion (% Done) per line item. Hover to view start and end dates.
+            </p>
+            <div class="gantt-container">
+                <canvas id="poapTasksChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Separate Chart 2: Key Delivery Milestones Timeline -->
+        <div class="card">
+            <h2>🚩 Key Delivery Milestones Timeline</h2>
+            <p style="color: var(--text-sub); font-size: 0.85rem; margin-bottom: 16px;">
+                Dedicated milestone roadmap displaying target delivery dates when hovering over the flag markers.
+            </p>
+            <div class="milestone-gantt-container">
+                <canvas id="poapMilestonesChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Task List Modal Popup -->
+    <div id="tasksModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Task Listing</h3>
+                <button class="modal-close" onclick="closeTasksModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Task Name</th>
+                            <th>Phase</th>
+                            <th>Task Owner</th>
+                            <th>End Date</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="modalTableBody">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Chart.js Plugin for Rendering Direct Bar Data Labels (% & Values) -->
+    <script>
+        let chartInstances = {};
+
+        const barDataLabelsPlugin = {
+            id: 'barDataLabelsPlugin',
+            afterDatasetsDraw(chart) {
+                const { ctx } = chart;
+                const meta = chart.getDatasetMeta(0);
+                
+                if (!meta.data || meta.data.length === 0) return;
+
+                meta.data.forEach((bar, index) => {
+                    const rawVal = chart.data.datasets[0].data[index];
+                    if (rawVal === undefined || rawVal === null) return;
+
+                    ctx.save();
+                    ctx.font = '600 11px "Segoe UI", sans-serif';
+                    ctx.fillStyle = '#f1f5f9';
+
+                    if (chart.config.options.indexAxis === 'y') {
+                        const xPos = bar.x + 8;
+                        const yPos = bar.y + 4;
+                        let textLabel = '';
+
+                        if (chart.canvas.id === 'phaseBarChart' || chart.canvas.id === 'workstreamBarChart' || chart.canvas.id === 'phaseAnalyticsBarChart') {
+                            textLabel = `${rawVal}%`;
+                        } else if (chart.canvas.id === 'poapTasksChart') {
+                            textLabel = chart.data.labels[index];
+                        } else {
+                            textLabel = `${rawVal}`;
+                        }
+
+                        ctx.fillText(textLabel, xPos, yPos);
+                    }
+                    ctx.restore();
+                });
+            }
+        };
+
+        function openProjectSite(siteId) {
+            const sites = document.getElementsByClassName("site-view");
+            for (let i = 0; i < sites.length; i++) {
+                sites[i].classList.remove("active");
+            }
+            document.getElementById(siteId).classList.add("active");
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            setTimeout(resizeAllCharts, 100);
+        }
+
+        function openTab(evt, tabName) {
+            const targetSite = document.getElementById("delaware-site");
+            const tabContents = targetSite.getElementsByClassName("tab-content");
+            for (let i = 0; i < tabContents.length; i++) {
+                tabContents[i].classList.remove("active");
+                tabContents[i].style.display = "none";
+            }
+
+            const tabBtns = targetSite.getElementsByClassName("tab-btn");
+            for (let i = 0; i < tabBtns.length; i++) {
+                tabBtns[i].classList.remove("active");
+            }
+
+            const activeTabContent = document.getElementById(tabName);
+            if (activeTabContent) {
+                activeTabContent.classList.add("active");
+                activeTabContent.style.display = "block";
+            }
+
+            if (evt && evt.currentTarget) {
+                evt.currentTarget.classList.add("active");
+            }
+
+            setTimeout(resizeAllCharts, 50);
+        }
+
+        function resizeAllCharts() {
+            Object.values(chartInstances).forEach(chart => {
+                if (chart && typeof chart.resize === 'function') {
+                    chart.resize();
+                    chart.update();
+                }
+            });
+        }
+
+        // Helper function to format ISO date string (YYYY-MM-DD) to dd/mm/yyyy
+        function formatDateToDDMMYYYY(dateStr) {
+            if (!dateStr) return '';
+            const parts = dateStr.split('-');
+            if (parts.length === 3) {
+                return `${parts[2]}/${parts[1]}/${parts[0]}`;
+            }
+            return dateStr;
+        }
+
+        // POAP Tasks Dataset
+        const poapTasksData = [
+            { label: 'Planning (100%)', start: '2026-07-01', end: '2026-09-11', color: '#34d399' },
+            { label: 'Planning Governance Tasks (100%)', start: '2026-07-01', end: '2026-09-03', color: '#34d399' },
+            { label: 'Conduct Initial Planning Sessions (100%)', start: '2026-09-02', end: '2026-09-11', color: '#34d399' },
+            { label: 'Develop Project Schedule (100%)', start: '2026-08-06', end: '2026-09-11', color: '#34d399' },
+            { label: 'Design (0%)', start: '2026-09-21', end: '2027-02-24', color: '#38bdf8' },
+            { label: 'Functional design sessions (0%)', start: '2026-09-21', end: '2026-10-19', color: '#38bdf8' },
+            { label: 'Technical design sessions (0%)', start: '2026-10-12', end: '2027-02-24', color: '#38bdf8' },
+            { label: 'Integration Build (0%)', start: '2026-09-28', end: '2026-12-18', color: '#a855f7' },
+            { label: 'Data Migration Build (0%)', start: '2026-09-28', end: '2026-12-18', color: '#a855f7' },
+            { label: 'Testing (0%)', start: '2026-12-21', end: '2027-01-22', color: '#fb923c' },
+            { label: 'UAT (0%)', start: '2027-01-18', end: '2027-02-15', color: '#fb923c' },
+            { label: 'Deploy (0%)', start: '2027-01-04', end: '2027-03-08', color: '#34d399' },
+            { label: 'Train the trainer (0%)', start: '2027-01-18', end: '2027-01-26', color: '#34d399' },
+            { label: 'Hypercare (0%)', start: '2027-03-09', end: '2027-04-01', color: '#fbbf24' },
+            { label: 'Project Progress (16%)', start: '2026-07-01', end: '2027-03-30', color: '#38bdf8' }
+        ];
+
+        // Defined Milestones Dataset mapping to End Dates
+        const poapMilestonesData = [
+            { label: '📌 Planning (100%)', start: '2026-09-11', end: '2026-09-11', flagColor: '#34d399' },
+            { label: '📌 SDD Sign-off (0%)', start: '2026-10-23', end: '2026-10-23', flagColor: '#38bdf8' },
+            { label: '📌 Design (0%)', start: '2026-10-27', end: '2026-10-27', flagColor: '#38bdf8' },
+            { label: '📌 UAT Kick-off (0%)', start: '2027-01-18', end: '2027-01-18', flagColor: '#38bdf8' },
+            { label: '📌 Training sign-off (0%)', start: '2027-01-29', end: '2027-01-29', flagColor: '#38bdf8' },
+            { label: '📌 Go/No-Go Decision (0%)', start: '2027-03-05', end: '2027-03-05', flagColor: '#38bdf8' },
+            { label: '🚀 Go Live (0%)', start: '2027-03-08', end: '2027-03-08', flagColor: '#34d399' },
+            { label: '📌 Project Close Client Sign Off (0%)', start: '2027-03-30', end: '2027-03-30', flagColor: '#38bdf8' }
+        ];
+
+        // Custom Plugin to Draw Blue and Green Flags on the Milestones Chart
+        const milestoneFlagPlugin = {
+            id: 'milestoneFlagPlugin',
+            afterDatasetsDraw(chart) {
+                const { ctx } = chart;
+                const meta = chart.getDatasetMeta(0);
+
+                meta.data.forEach((bar, index) => {
+                    const milestone = poapMilestonesData[index];
+                    const xPos = bar.x;
+                    const yPos = bar.y;
+                    const color = milestone.flagColor;
+
+                    ctx.save();
+                    
+                    // Draw Flag Pole
+                    ctx.beginPath();
+                    ctx.strokeStyle = '#cbd5e1';
+                    ctx.lineWidth = 2;
+                    ctx.moveTo(xPos, yPos - 12);
+                    ctx.lineTo(xPos, yPos + 12);
+                    ctx.stroke();
+
+                    // Draw Flag Banner
+                    ctx.beginPath();
+                    ctx.fillStyle = color;
+                    ctx.moveTo(xPos, yPos - 12);
+                    ctx.lineTo(xPos + 14, yPos - 5);
+                    ctx.lineTo(xPos, yPos + 2);
+                    ctx.closePath();
+                    ctx.fill();
+
+                    // Draw Pole Top Cap
+                    ctx.beginPath();
+                    ctx.fillStyle = '#f8fafc';
+                    ctx.arc(xPos, yPos - 12, 2.5, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    ctx.restore();
+                });
+            }
+        };
+
+        // Initialize All Dashboard Charts on Window Load
+        window.addEventListener('load', () => {
+            // POAP Tasks Chart
+            const tasksCtx = document.getElementById('poapTasksChart').getContext('2d');
+            chartInstances.tasks = new Chart(tasksCtx, {
+                type: 'bar',
+                data: {
+                    labels: poapTasksData.map(item => item.label),
+                    datasets: [{
+                        label: 'Tasks Duration',
+                        data: poapTasksData.map(item => [item.start, item.end]),
+                        backgroundColor: poapTasksData.map(item => item.color),
+                        borderRadius: 4,
+                        barPercentage: 0.65
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            position: 'top',
+                            type: 'time',
+                            time: { unit: 'month', displayFormats: { month: 'MMM yyyy' } },
+                            min: '2026-06-15',
+                            max: '2027-04-15',
+                            ticks: { color: '#94a3b8' },
+                            grid: { color: '#232d42' }
+                        },
+                        y: {
+                            ticks: { color: '#f1f5f9', font: { size: 11 } },
+                            grid: { display: false }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(ctx) {
+                                    const index = ctx.dataIndex;
+                                    const task = poapTasksData[index];
+                                    const startFormatted = formatDateToDDMMYYYY(task.start);
+                                    const endFormatted = formatDateToDDMMYYYY(task.end);
+                                    return ` Period: ${startFormatted} to ${endFormatted}`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // POAP Milestones Chart
+            const milestonesCtx = document.getElementById('poapMilestonesChart').getContext('2d');
+            chartInstances.milestones = new Chart(milestonesCtx, {
+                type: 'bar',
+                data: {
+                    labels: poapMilestonesData.map(item => item.label),
+                    datasets: [{
+                        label: 'Milestone End Date',
+                        data: poapMilestonesData.map(item => [item.start, item.end]),
+                        backgroundColor: 'transparent',
+                        borderColor: 'transparent',
+                        barThickness: 1
+                    }]
+                },
+                plugins: [milestoneFlagPlugin],
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'nearest', intersect: false },
+                    scales: {
+                        x: {
+                            position: 'top',
+                            type: 'time',
+                            time: { unit: 'month', displayFormats: { month: 'MMM yyyy' } },
+                            min: '2026-06-15',
+                            max: '2027-04-15',
+                            ticks: { color: '#94a3b8' },
+                            grid: { color: '#232d42' }
+                        },
+                        y: {
+                            ticks: { color: '#f1f5f9', font: { size: 11 } },
+                            grid: { display: false }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(ctx) {
+                                    const index = ctx.dataIndex;
+                                    const endDateIso = poapMilestonesData[index].end;
+                                    const formattedDate = formatDateToDDMMYYYY(endDateIso);
+                                    return ` Date: ${formattedDate}`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Task Status Pie Chart
+            const taskStatusPieCtx = document.getElementById('taskStatusPieChart').getContext('2d');
+            chartInstances.taskPie = new Chart(taskStatusPieCtx, {
+                type: 'pie',
+                data: {
+                    labels: ['Completed (27.3% - 36 Tasks)', 'Not Started (65.2% - 86 Tasks)', 'Scheduled (7.6% - 10 Tasks)'],
+                    datasets: [{
+                        data: [36, 86, 10],
+                        backgroundColor: ['#34d399', '#fbbf24', '#94a3b8'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { color: '#94a3b8', boxWidth: 10, font: { size: 10 } } }
+                    }
+                }
+            });
+
+            // Phase Progress Bar Chart
+            const barCtx = document.getElementById('phaseBarChart').getContext('2d');
+            chartInstances.phaseBar = new Chart(barCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Planning', 'Design', 'Build', 'Test', 'Deploy', 'Hypercare'],
+                    datasets: [{ label: '% Complete', data: [100, 0, 0, 0, 0, 0], backgroundColor: ['#34d399', '#38bdf8', '#38bdf8', '#38bdf8', '#38bdf8', '#38bdf8'], borderRadius: 4, barPercentage: 0.6 }]
+                },
+                plugins: [barDataLabelsPlugin],
+                options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, scales: { x: { max: 115, ticks: { color: '#94a3b8', callback: v => v + '%' }, grid: { color: '#232d42' } }, y: { ticks: { color: '#f1f5f9' }, grid: { display: false } } }, plugins: { legend: { display: false } } }
+            });
+
+            // Workstream Bar Chart
+            const wsBarCtx = document.getElementById('workstreamBarChart').getContext('2d');
+            chartInstances.wsBar = new Chart(wsBarCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Configuration', 'Functional', 'Integration', 'Data Migration', 'Testing'],
+                    datasets: [{
+                        label: '% Complete',
+                        data: [50.0, 37.9, 0, 0, 0],
+                        backgroundColor: ['#34d399', '#38bdf8', '#c084fc', '#fb923c', '#64748b'],
+                        borderRadius: 4,
+                        barPercentage: 0.6
+                    }]
+                },
+                plugins: [barDataLabelsPlugin],
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { max: 115, ticks: { color: '#94a3b8', callback: v => v + '%' }, grid: { color: '#232d42' } },
+                        y: { ticks: { color: '#f1f5f9', font: { size: 11 } }, grid: { display: false } }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            // Phase Analytics Bar Chart
+            const phaseAnalyticsBarCtx = document.getElementById('phaseAnalyticsBarChart').getContext('2d');
+            chartInstances.phaseAnalyticsBar = new Chart(phaseAnalyticsBarCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Planning', 'Design', 'Build', 'Test', 'Deploy', 'Hypercare'],
+                    datasets: [{
+                        label: '% Complete',
+                        data: [100, 0, 0, 0, 0, 0],
+                        backgroundColor: ['#34d399', '#38bdf8', '#a855f7', '#fb923c', '#f472b6', '#fbbf24'],
+                        borderRadius: 4,
+                        barPercentage: 0.6
+                    }]
+                },
+                plugins: [barDataLabelsPlugin],
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { max: 115, ticks: { color: '#94a3b8', callback: v => v + '%' }, grid: { color: '#232d42' } },
+                        y: { ticks: { color: '#f1f5f9', font: { size: 11 } }, grid: { display: false } }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        });
+
+        // Links Table Repositories Data directly extracted from Column L of 1.Project Plan.xlsx
+        const linksList = [
+            { name: "Planning", link: "Planning: G drive", url: "https://drive.google.com/drive/folders/1sIBXxpXrki3FnT2Qnmp-b8jeePwO62od?usp=drive_link" },
+            { name: "SOW Executed", link: "Signed SOW", url: "https://drive.google.com/file/d/1CP4IFgdamCSbndr6o2-ta12SZ2A96ZKK/view?usp=drive_link" },
+            { name: "Sales to Delivery hand-off", link: "Sales to delivery handover doc", url: "https://docs.google.com/spreadsheets/d/1PkeQicGR-jcE7TYbmEMIIbdb9GnYyWFmxwddaeUawQ4/edit?usp=drive_link" },
+            { name: "Create ProFinda IMP tasks for time tracking", link: "JIRA board", url: "https://profinda.atlassian.net/jira/software/c/projects/IMP/boards/1314?atlOrigin=eyJpIjoiNjQ2NGIyYjU3ZmRhNGJmNGEyZDRiOGEwOWJmZmIzMzgiLCJwIjoiaiJ9" },
+            { name: "Welcome and Intro to Primary Client Stakeholder (Email)", link: "Implementation methodology", url: "https://docs.google.com/presentation/d/1u6_Ixv_cgdGrDdameRntWdsrUg5mQEe1/edit?usp=sharing&ouid=103610632950269868806&rtpof=true&sd=true" },
+            { name: "Set up DOCK", link: "DOCK-Delaware", url: "https://profinda.dock.us/delaware-consulting-international-cv-jbq9pzAozUN5" },
+            { name: "Share Planning and Design Framework", link: "Planning & Design Framework", url: "https://drive.google.com/drive/folders/1tyJ4kE9iLFU3GWfWi7MF-PmpFXlEuu-H?usp=drive_link" },
+            { name: "Establish Communication Plan including project documentation storage location", link: "Delaware - G drive folder", url: "https://drive.google.com/drive/folders/1yJLpMBvu_5EWx_MyABjo6Jh4MY7bW1FO?usp=drive_link" },
+            { name: "Conduct Initial Planning Sessions", link: "Deck & Meeting notes", url: "https://drive.google.com/drive/folders/1PFxuSOLR2zOyUmBrrDEdOVLFOQ2d3zr8?usp=drive_link" },
+            { name: "Session #1: Technical Discovery call", link: "Deck-Technical Discovery session", url: "https://docs.google.com/presentation/d/1B2KT9H2_7xCvAuYK7dkxTDkg3J3yexnU/edit?usp=drive_link&ouid=103610632950269868806&rtpof=true&sd=true" },
+            { name: "Session #2: Introduction + Reverse Demo of Client’s Current State", link: "Deck-Reverse Demo", url: "https://docs.google.com/presentation/d/1A4ktzmIYWRG8Ej56ON7CWoZuNm9lhS_n/edit?usp=drive_link&ouid=103610632950269868806&rtpof=true&sd=true" },
+            { name: "Share templates for ProFinda Data Integrations", link: "Sample data template from PF", url: "https://drive.google.com/drive/folders/1jHBtyjJ4PkmH65AorHdNb_e68xSyi0oa?usp=drive_link" },
+            { name: "Session #3: High Level Demo of ProFinda and Next Steps", link: "Deck-High Level Demo", url: "https://drive.google.com/file/d/1PnqDLNdy8F3hbzxSD_8klawcU7wbn0MI/view?usp=drive_link" },
+            { name: "Session #4: Kick Off Planning & Change Management Discussion", link: "Deck-Plng & Change Mmgt", url: "https://docs.google.com/presentation/d/1BI6AqN2K_b_A7TvWr6BHE1mEmqicoGOh/edit?usp=drive_link&ouid=103610632950269868806&rtpof=true&sd=true" },
+            { name: "Session #5: Conduct Kick-off meeting", link: "Deck-Implementation Kick-off", url: "https://docs.google.com/presentation/d/1GZb1S0cd7aeSQdmIY0uXnkb-FzbTwVyA/edit?usp=drive_link&ouid=103610632950269868806&rtpof=true&sd=true" },
+            { name: "Collect Client Data sample files - 5 records each", link: "Delaware - Sample files", url: "https://drive.google.com/drive/folders/1vAw5-9OUanEclW3zAWx4HIRmTTdUlHTr?usp=drive_link" },
+            { name: "Collect Client Data sample files: Profiles", link: "Sample: Profile data", url: "https://docs.google.com/spreadsheets/d/12HxSgjeA4Gqm9RylT5Y3pqBSapdzUT5l/edit?usp=drive_link&ouid=103610632950269868806&rtpof=true&sd=true" },
+            { name: "Collect Client Data sample files: Engagements", link: "Sample: Engagement data", url: "https://docs.google.com/spreadsheets/d/1zF7Aw3b8ylVK9wn6QvXuBDyNU3wzQB9-/edit?usp=drive_link&ouid=103610632950269868806&rtpof=true&sd=true" },
+            { name: "Collect Client Data sample files: Roles", link: "Sample: Roles data", url: "https://docs.google.com/spreadsheets/d/10ePLlSIzDQC9V7wfC2aSTjqLxmm3hA0p/edit?usp=drive_link&ouid=103610632950269868806&rtpof=true&sd=true" },
+            { name: "Collect Client Data sample files: Bookings", link: "Sample: Bookings data", url: "https://docs.google.com/spreadsheets/d/1dEa5T8s5QCDCSQnJ_o_f8f-BFsDuswWx/edit?usp=drive_link&ouid=103610632950269868806&rtpof=true&sd=true" },
+            { name: "Collect Client Data sample files: Skills", link: "Sample: Profile data", url: "https://docs.google.com/spreadsheets/d/12HxSgjeA4Gqm9RylT5Y3pqBSapdzUT5l/edit?usp=drive_link&ouid=103610632950269868806&rtpof=true&sd=true" },
+            { name: "Collect Business Requirements Documentation per the Planning Framework: Process Maps, Workflows, Screenshot of EE Profile within HRIS, etc.", link: "Business requirements & Screenshots", url: "https://drive.google.com/drive/folders/13PXAN3yfioqcgMPxlduSHozNlrRXRI6i?usp=drive_link" },
+            { name: "Develop Project Schedule", link: "Project plan", url: "https://app.smartsheet.com/sheets/4gmp2pFgG5qwPvJvCP4m4wM4WQX2gcgCQc4gr2x1" },
+            { name: "Creating JIRA tickets/ planning", link: "SP-11006-Delaware Implementation", url: "https://profinda.atlassian.net/browse/SP-11006?atlOrigin=eyJpIjoiM2U5NmI1OWJiNTY5NDQwNDkzM2MyYTM5ODFjZmFlYzAiLCJwIjoiaiJ9" },
+            { name: "Build initial PF site (to be demoed and amended in design sessions)", link: "https://delaware.ui-integration.profinda.com", url: "https://delaware.ui-integration.profinda.com/" },
+            { name: "Validate sample files", link: "Delaware - Sample files", url: "https://drive.google.com/drive/folders/1vAw5-9OUanEclW3zAWx4HIRmTTdUlHTr?usp=drive_link" },
+            { name: "Complete initial ProFinda INT[Integration environment] platform build", link: "Integration environment", url: "https://delaware.ui-integration.profinda.com/admin/users" },
+            { name: "Design", link: "Design: G drive folder", url: "https://drive.google.com/drive/folders/1v7pWdPNOeW3fY2PZpMLgZUpYSAxidIEi?usp=drive_link" },
+            { name: "Design Sessions #1 - Profile & Skills", link: "Design-Profile & Skills", url: "https://drive.google.com/drive/folders/1s9VzcIxb91NUXw3iAHISp37Sd2XPdQfj?usp=drive_link" },
+            { name: "Design sessions #2 Engagements", link: "Design-Engagements", url: "https://drive.google.com/drive/folders/1-yWycnB-bvX8S330ZqqtELPv9Pr8ehtI?usp=drive_link" },
+            { name: "Design Session #3 Roles", link: "Design-Roles", url: "https://drive.google.com/drive/folders/1G0yGvq2yIb1dsU1iLuGObVuPI0vUkIIf?usp=drive_link" },
+            { name: "Design Session #4 Reporting & Dynamic Insights", link: "Design-Reporting & Dynamic Insights", url: "https://drive.google.com/drive/folders/1LiBGoTrP84Zsyr-1h0Qpa2CXBdbqCT9C?usp=drive_link" },
+            { name: "Design Session #5 Bookings", link: "Design-Bookings", url: "https://drive.google.com/drive/folders/1sOPrswxnpJC6pDq2r-ecAHLncIcHytBH?usp=drive_link" },
+            { name: "Design Session #6 Permissions", link: "Design-Permissions", url: "https://drive.google.com/drive/folders/124Yg7EHnSMZrz1u6akXkCOKeYntbrXZX?usp=drive_link" },
+            { name: "Draft Solution Design Documentation", link: "SDD & Config workbook", url: "https://drive.google.com/drive/folders/14ZkKem94exLp_6LtODziVCP4CGQ7ZE7X?usp=drive_link" },
+            { name: "Draft Configuration Workbook - Functional", link: "SDD & Config workbook", url: "https://drive.google.com/drive/folders/14ZkKem94exLp_6LtODziVCP4CGQ7ZE7X?usp=drive_link" },
+            { name: "Build", link: "Build: G drive folder", url: "https://drive.google.com/drive/folders/1lpIX__987IxJIEP1sWXkfZoqP-aF9QdX?usp=drive_link" },
+            { name: "Test", link: "Test: G drive folder", url: "https://drive.google.com/drive/folders/1LA75wKPnntvb_rG6GHbhEVUDta9WieE5?usp=drive_link" },
+            { name: "Go Live", link: "Go-Live folder", url: "https://drive.google.com/drive/folders/1ezXT_fQ7Eq70prFbIjo1C5H0_wrd5glb?usp=drive_link" },
+            { name: "Hypercare", link: "Hypercare: G drive folder", url: "https://drive.google.com/drive/folders/1x45z4JBDpOKXhqQDgxRVZuClqTHduGjl?usp=drive_link" }
+        ];
+
+        // Populate Links Table
+        const linksTableBody = document.getElementById('linksTableBody');
+        linksTableBody.innerHTML = linksList.map((doc, idx) => `
+            <tr>
+                <td><strong>${idx + 1}</strong></td>
+                <td><strong>${doc.name}</strong></td>
+                <td>
+                    <a href="${doc.url}" target="_blank" class="doc-link-btn">
+                        🔗 ${doc.link}
+                    </a>
+                </td>
+            </tr>
+        `).join('');
+
+        // Task Database for Modal Popups
+        const taskDatabase = {
+            Overdue: [],
+            Due14: [
+                { name: 'Design Sessions #1 - Profile & Skills', phase: 'Design', owner: 'Praveen Singh', date: '21/09/2026', status: 'Scheduled' },
+                { name: 'Complete design decisions - Profile & Skills', phase: 'Design', owner: 'Delaware', date: '23/09/2026', status: 'Not Started' },
+                { name: 'Design sessions #2 Engagements', phase: 'Design', owner: 'Praveen Singh', date: '25/09/2026', status: 'Scheduled' },
+                { name: 'Complete design decisions - Engagements', phase: 'Design', owner: 'Delaware', date: '29/09/2026', status: 'Not Started' },
+                { name: 'Design Session #3 Roles', phase: 'Design', owner: 'Praveen Singh', date: '01/10/2026', status: 'Scheduled' },
+                { name: 'Design Session #4 Reporting & Dynamic Insights', phase: 'Design', owner: 'Praveen Singh', date: '02/10/2026', status: 'Scheduled' },
+                { name: 'Grant access to client on Integration environment', phase: 'Design', owner: 'Praveen Singh', date: '25/09/2026', status: 'Not Started' }
+            ],
+            ProFinda: [
+                { name: 'Executive Kickoff & Governance Setup', phase: 'Planning', owner: 'Marlowe Allen', date: '01/07/2026', status: 'Complete' },
+                { name: 'SOW Executed', phase: 'Planning', owner: 'Marlowe Allen', date: '01/07/2026', status: 'Complete' },
+                { name: 'Sales to Delivery hand-off', phase: 'Planning', owner: 'Marlowe Allen', date: '08/07/2026', status: 'Complete' },
+                { name: 'Profinda Project Resources Mobilized', phase: 'Planning', owner: 'Marlowe Allen', date: '09/07/2026', status: 'Complete' },
+                { name: 'Create ProFinda IMP tasks for time tracking', phase: 'Planning', owner: 'Marlowe Allen', date: '09/07/2026', status: 'Complete' },
+                { name: 'Welcome and Intro to Primary Client Stakeholder', phase: 'Planning', owner: 'Marlowe Allen', date: '15/07/2026', status: 'Complete' }
+            ],
+            Delaware: [
+                { name: 'Session #2: Introduction + Reverse Demo', phase: 'Planning', owner: 'Delaware', date: '04/09/2026', status: 'Complete' },
+                { name: 'Collect Business Requirements Documentation', phase: 'Planning', owner: 'leander.lens@delaware.pro', date: '11/09/2026', status: 'Complete' },
+                { name: 'Complete design decisions Profile & Skills', phase: 'Design', owner: 'Delaware', date: '23/09/2026', status: 'Not Started' },
+                { name: 'Client Sign Off on SDD', phase: 'Design', owner: 'leander.lens@delaware.pro', date: '23/10/2026', status: 'Not Started' }
+            ],
+            Critical: [
+                { name: 'Collect Business Requirements Documentation', phase: 'Planning', owner: 'leander.lens@delaware.pro', date: '11/09/2026', status: 'Complete' },
+                { name: 'Client Sign Off on SDD', phase: 'Design', owner: 'leander.lens@delaware.pro', date: '23/10/2026', status: 'Not Started' },
+                { name: 'SIT Sign Off', phase: 'Test', owner: 'Delaware', date: '22/01/2027', status: 'Not Started' },
+                { name: 'Go Live', phase: 'Deploy', owner: 'Delaware', date: '08/03/2027', status: 'Not Started' }
+            ]
+        };
+
+        function showTasksModal(owner) {
+            const modal = document.getElementById('tasksModal');
+            const title = document.getElementById('modalTitle');
+            const tableBody = document.getElementById('modalTableBody');
+            
+            const categoryTitles = {
+                Overdue: 'Overdue Tasks (0 Tasks)',
+                Due14: 'Tasks Due in Next 14 Days (7 Tasks)',
+                ProFinda: 'ProFinda Owned Tasks Breakdown (60 Tasks)',
+                Delaware: 'Delaware Owned Tasks Breakdown (39 Tasks)',
+                Critical: 'Critical Path Items (20 Items)'
+            };
+
+            title.innerText = categoryTitles[owner] || `${owner} Tasks Breakdown`;
+            
+            if (taskDatabase[owner].length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align: center; color: var(--accent-green); padding: 24px;">
+                            <strong>✓ Excellent! There are currently 0 overdue tasks on this project.</strong>
+                        </td>
+                    </tr>
+                `;
+            } else {
+                tableBody.innerHTML = taskDatabase[owner].map(t => `
+                    <tr>
+                        <td><strong>${t.name}</strong></td>
+                        <td>${t.phase}</td>
+                        <td>${t.owner}</td>
+                        <td>${t.date}</td>
+                        <td><span class="status-pill ${t.status === 'Complete' ? 'pill-green' : (t.status === 'Scheduled' ? 'pill-orange' : 'pill-gray')}">${t.status}</span></td>
+                    </tr>
+                `).join('');
+            }
+
+            modal.style.display = 'flex';
+        }
+
+        function closeTasksModal() {
+            document.getElementById('tasksModal').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
