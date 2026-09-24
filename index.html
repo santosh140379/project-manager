@@ -356,7 +356,7 @@
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            height: fit-content; /* Auto-fit to content */
+            height: fit-content;
         }
 
         .slide-block-header {
@@ -693,7 +693,7 @@
                     <div class="project-metrics">
                         <div class="project-metric-item">
                             <span>Progress</span>
-                            <p id="portalProgressVal" style="color: var(--accent-blue);">28.0%</p>
+                            <p id="portalProgressVal" style="color: var(--accent-blue);">31.0%</p>
                         </div>
                         <div class="project-metric-item">
                             <span>Contract Revenue</span>
@@ -822,7 +822,7 @@
                         <h3>⚡ Executive Overview & Health</h3>
                         <ul>
                             <li><strong>Total Schedule Health:</strong> GREEN (On Track). Implementation is progressing smoothly across primary workstreams.</li>
-                            <li><strong>Overall Completion Rate:</strong> <strong>28.0%</strong> complete (37 out of 132 tasks finished).</li>
+                            <li><strong>Overall Completion Rate:</strong> <strong>31.0%</strong> complete (38 out of 133 tasks finished).</li>
                             <li><strong>Target Go-Live:</strong> Scheduled for <strong>08/03/2027</strong> (171 days remaining).</li>
                             <li><strong>Commercial Revenue:</strong> Fixed Implementation Fee of <strong>€229,332.00</strong> under active milestone governance.</li>
                         </ul>
@@ -881,7 +881,7 @@
                         <div class="slide-block-header">SUMMARY</div>
                         <div class="slide-block-body">
                             <ul>
-                                <li><strong>Project Status:</strong> Implementation is progressing on schedule with <strong>28.0%</strong> overall completion (37/132 tasks complete).</li>
+                                <li><strong>Project Status:</strong> Implementation is progressing on schedule with <strong id="weeklySummaryProgress">31.0%</strong> overall completion (38/133 tasks complete).</li>
                                 <li><strong>Phase Progress:</strong> Planning Phase is <strong>100% complete</strong>. Design Phase workshops are actively <strong>In Progress</strong>.</li>
                                 <li><strong>Target Go-Live:</strong> On track for <strong>08/03/2027</strong> (171 days to go-live).</li>
                                 <li><strong>Milestone Sign-Off:</strong> Solution Design Sign-Off (SDD) targeted for <strong>23/10/2026</strong>.</li>
@@ -993,17 +993,17 @@
                 <!-- Project Progress Card (Smartsheet Row #9) -->
                 <a href="https://app.smartsheet.com/sheets/PfVV9mxp9WcXx54h25Gcmqxp5vq6FwWgp25RRv71" target="_blank" class="metric-card interactive" title="Click to view Smartsheet Summary Table (Row #9: Project Progress %)">
                     <span>Project Progress ↗</span>
-                    <div class="val" id="smartsheetProjectProgress" style="color: var(--accent-green);">28.8%</div>
+                    <div class="val" id="smartsheetProjectProgress" style="color: var(--accent-green);">31.0%</div>
                 </a>
                 <!-- Total Tasks Card (Smartsheet Row #1) -->
                 <a href="https://app.smartsheet.com/sheets/PfVV9mxp9WcXx54h25Gcmqxp5vq6FwWgp25RRv71" target="_blank" class="metric-card interactive" title="Click to view Smartsheet Summary Table (Row #1: Total Tasks)">
                     <span>Total Tasks ↗</span>
-                    <div class="val" id="smartsheetTotalTasks">132</div>
+                    <div class="val" id="smartsheetTotalTasks">133</div>
                 </a>
                 <!-- Completed Tasks Card (Smartsheet Row #2) -->
                 <a href="https://app.smartsheet.com/sheets/PfVV9mxp9WcXx54h25Gcmqxp5vq6FwWgp25RRv71" target="_blank" class="metric-card interactive" title="Click to view Smartsheet Summary Table (Row #2: Completed Tasks)">
                     <span>Completed Tasks ↗</span>
-                    <div class="val" id="smartsheetCompletedTasks" style="color: var(--accent-green);">37</div>
+                    <div class="val" id="smartsheetCompletedTasks" style="color: var(--accent-green);">38</div>
                 </a>
                 <!-- Scheduled Tasks Card (Smartsheet Row #8) -->
                 <a href="https://app.smartsheet.com/sheets/PfVV9mxp9WcXx54h25Gcmqxp5vq6FwWgp25RRv71" target="_blank" class="metric-card interactive" title="Click to view Smartsheet Summary Table (Row #8: Scheduled)">
@@ -1013,7 +1013,7 @@
                 <!-- Tasks Due (14 Days) Card (Smartsheet Row #11) -->
                 <a href="https://app.smartsheet.com/sheets/PfVV9mxp9WcXx54h25Gcmqxp5vq6FwWgp25RRv71" target="_blank" class="metric-card interactive" title="Click to view Smartsheet Summary Table (Row #11: Tasks Due Next 14 Days)">
                     <span>Tasks Due (14 Days) ↗</span>
-                    <div class="val" id="smartsheetDueTasks" style="color: var(--accent-blue);">10 🔍</div>
+                    <div class="val" id="smartsheetDueTasks" style="color: var(--accent-blue);">13 🔍</div>
                 </a>
                 <!-- Overdue Tasks Card (Smartsheet Row #10) -->
                 <a href="https://app.smartsheet.com/sheets/PfVV9mxp9WcXx54h25Gcmqxp5vq6FwWgp25RRv71" target="_blank" class="metric-card interactive" title="Click to view Smartsheet Summary Table (Row #10: Overdue Tasks)">
@@ -1589,7 +1589,7 @@
             }
         }
 
-        // PowerPoint (.pptx) Export Function - Precision Grid Placement to Guarantee Single 16:9 Page Fit
+        // PowerPoint (.pptx) Export Function - Strict Single 16:9 Page Fitting matching Requirement.pptx
         function downloadWeeklyStatusPPT() {
             if (typeof PptxGenJS === 'undefined') {
                 alert('PowerPoint generation library is loading. Please try again in a moment.');
@@ -1606,7 +1606,7 @@
             
             // Header Title
             slide.addText(`Delaware Implementation – Status Meeting – as of ${meetingDateText}`, {
-                x: 0.5, y: 0.25, w: 12.33, h: 0.35,
+                x: 0.5, y: 0.2, w: 12.33, h: 0.35,
                 fontSize: 15, bold: true, color: 'FFFFFF', fontFace: 'Segoe UI'
             });
 
@@ -1615,64 +1615,64 @@
             const textMain = 'f1f5f9';
             const textGreen = '34d399';
 
-            // Top Grid Row (Y: 0.7", Height: 1.6")
-            slide.addShape(pptx.shapes.RECTANGLE, { x: 0.5, y: 0.7, w: 7.8, h: 1.6, fill: headerBg, line: { color: '232d42', width: 1 } });
-            slide.addText('SUMMARY', { x: 0.62, y: 0.75, w: 7.5, h: 0.2, fontSize: 9.5, bold: true, color: accentBlue, fontFace: 'Segoe UI' });
+            // Top Row: SUMMARY & STATUS TRACKER (Y: 0.65", H: 1.55")
+            slide.addShape(pptx.shapes.RECTANGLE, { x: 0.5, y: 0.65, w: 7.8, h: 1.55, fill: headerBg, line: { color: '232d42', width: 1 } });
+            slide.addText('SUMMARY', { x: 0.6, y: 0.7, w: 7.5, h: 0.2, fontSize: 9.0, bold: true, color: accentBlue, fontFace: 'Segoe UI' });
             slide.addText([
-                { text: '• Project Status: Implementation is progressing on schedule with 28.0% overall completion (37/132 tasks complete).\n', options: { fontSize: 8.0, color: textMain } },
-                { text: '• Phase Progress: Planning Phase is 100% complete. Design Phase workshops are actively In Progress.\n', options: { fontSize: 8.0, color: textMain } },
-                { text: '• Target Go-Live: On track for 08/03/2027 (171 days to go-live).\n', options: { fontSize: 8.0, color: textMain } },
-                { text: '• Milestone Sign-Off: Solution Design Sign-Off (SDD) targeted for 23/10/2026.', options: { fontSize: 8.0, color: textMain } }
-            ], { x: 0.62, y: 0.98, w: 7.5, h: 1.25, fontFace: 'Segoe UI', margin: 0 });
+                { text: '• Project Status: Implementation is progressing on schedule with 31.0% overall completion (38/133 tasks complete).\n', options: { fontSize: 7.5, color: textMain } },
+                { text: '• Phase Progress: Planning Phase is 100% complete. Design Phase workshops are actively In Progress.\n', options: { fontSize: 7.5, color: textMain } },
+                { text: '• Target Go-Live: On track for 08/03/2027 (171 days to go-live).\n', options: { fontSize: 7.5, color: textMain } },
+                { text: '• Milestone Sign-Off: Solution Design Sign-Off (SDD) targeted for 23/10/2026.', options: { fontSize: 7.5, color: textMain } }
+            ], { x: 0.6, y: 0.9, w: 7.5, h: 1.25, fontFace: 'Segoe UI', lineSpacing: 9, margin: 0 });
 
-            slide.addShape(pptx.shapes.RECTANGLE, { x: 8.5, y: 0.7, w: 4.33, h: 1.6, fill: headerBg, line: { color: '232d42', width: 1 } });
-            slide.addText('STATUS TRACKER', { x: 8.62, y: 0.75, w: 4.0, h: 0.2, fontSize: 9.5, bold: true, color: accentBlue, fontFace: 'Segoe UI' });
+            slide.addShape(pptx.shapes.RECTANGLE, { x: 8.5, y: 0.65, w: 4.33, h: 1.55, fill: headerBg, line: { color: '232d42', width: 1 } });
+            slide.addText('STATUS TRACKER', { x: 8.6, y: 0.7, w: 4.0, h: 0.2, fontSize: 9.0, bold: true, color: accentBlue, fontFace: 'Segoe UI' });
             slide.addText([
-                { text: 'Overall Status:   Green (On Track)\n', options: { fontSize: 8.0, bold: true, color: textGreen } },
-                { text: 'Config Stream:    50.0% Complete\n', options: { fontSize: 8.0, color: textGreen } },
-                { text: 'Data Stream:      In Progress\n', options: { fontSize: 8.0, color: accentBlue } },
-                { text: 'Functional Stream: 40.9% Complete', options: { fontSize: 8.0, color: accentBlue } }
-            ], { x: 8.62, y: 0.98, w: 4.0, h: 1.25, fontFace: 'Segoe UI', margin: 0 });
+                { text: 'Overall Status:   Green (On Track)\n', options: { fontSize: 7.5, bold: true, color: textGreen } },
+                { text: 'Config Stream:    50.0% Complete\n', options: { fontSize: 7.5, color: textGreen } },
+                { text: 'Data Stream:      In Progress\n', options: { fontSize: 7.5, color: accentBlue } },
+                { text: 'Functional Stream: 40.9% Complete', options: { fontSize: 7.5, color: accentBlue } }
+            ], { x: 8.6, y: 0.9, w: 4.0, h: 1.25, fontFace: 'Segoe UI', lineSpacing: 9, margin: 0 });
 
-            // Middle Grid Row (Y: 2.45", Height: 1.7")
-            slide.addShape(pptx.shapes.RECTANGLE, { x: 0.5, y: 2.45, w: 6.0, h: 1.7, fill: headerBg, line: { color: '232d42', width: 1 } });
-            slide.addText('ACHIEVEMENTS (LAST 7 DAYS)', { x: 0.62, y: 2.50, w: 5.7, h: 0.2, fontSize: 9.5, bold: true, color: accentBlue, fontFace: 'Segoe UI' });
+            // Middle Row: ACHIEVEMENTS & NEXT STEPS (Y: 2.3, H: 1.6")
+            slide.addShape(pptx.shapes.RECTANGLE, { x: 0.5, y: 2.3, w: 6.0, h: 1.6, fill: headerBg, line: { color: '232d42', width: 1 } });
+            slide.addText('ACHIEVEMENTS (LAST 7 DAYS)', { x: 0.6, y: 2.35, w: 5.7, h: 0.2, fontSize: 9.0, bold: true, color: accentBlue, fontFace: 'Segoe UI' });
             slide.addText([
-                { text: '• Completed technical discovery sessions & reverse demo walkthroughs.\n', options: { fontSize: 8.0, color: textMain } },
-                { text: '• Finalized and baselined project plan schedule in Smartsheet.\n', options: { fontSize: 8.0, color: textMain } },
-                { text: '• Successfully conducted formal Delaware Kick-Off meeting.\n', options: { fontSize: 8.0, color: textMain } },
-                { text: '• Collected sample files for Profiles, Roles, Engagements, and Bookings.', options: { fontSize: 8.0, color: textMain } }
-            ], { x: 0.62, y: 2.73, w: 5.7, h: 1.35, fontFace: 'Segoe UI', margin: 0 });
+                { text: '• Completed technical discovery sessions & reverse demo walkthroughs.\n', options: { fontSize: 7.5, color: textMain } },
+                { text: '• Finalized and baselined project plan schedule in Smartsheet.\n', options: { fontSize: 7.5, color: textMain } },
+                { text: '• Successfully conducted formal Delaware Kick-Off meeting.\n', options: { fontSize: 7.5, color: textMain } },
+                { text: '• Collected sample files for Profiles, Roles, Engagements, and Bookings.', options: { fontSize: 7.5, color: textMain } }
+            ], { x: 0.6, y: 2.55, w: 5.7, h: 1.3, fontFace: 'Segoe UI', lineSpacing: 9, margin: 0 });
 
-            slide.addShape(pptx.shapes.RECTANGLE, { x: 6.83, y: 2.45, w: 6.0, h: 1.7, fill: headerBg, line: { color: '232d42', width: 1 } });
-            slide.addText('NEXT STEPS (NEXT 7 - 14 DAYS)', { x: 6.95, y: 2.50, w: 5.7, h: 0.2, fontSize: 9.5, bold: true, color: accentBlue, fontFace: 'Segoe UI' });
+            slide.addShape(pptx.shapes.RECTANGLE, { x: 6.83, y: 2.3, w: 6.0, h: 1.6, fill: headerBg, line: { color: '232d42', width: 1 } });
+            slide.addText('NEXT STEPS (NEXT 7 - 14 DAYS)', { x: 6.93, y: 2.35, w: 5.7, h: 0.2, fontSize: 9.0, bold: true, color: accentBlue, fontFace: 'Segoe UI' });
             slide.addText([
-                { text: '• Conduct Design Sessions #1 (Profile & Skills) and confirm decisions.\n', options: { fontSize: 8.0, color: textMain } },
-                { text: '• Grant Delaware team platform access to ProFinda INT environment.\n', options: { fontSize: 8.0, color: textMain } },
-                { text: '• Conduct Design Sessions #2 (Engagements) on 25/09/2026.\n', options: { fontSize: 8.0, color: textMain } },
-                { text: '• Draft Solution Design Documentation (SDD) & Config Workbook.', options: { fontSize: 8.0, color: textMain } }
-            ], { x: 6.95, y: 2.73, w: 5.7, h: 1.35, fontFace: 'Segoe UI', margin: 0 });
+                { text: '• Conduct Design Sessions #1 (Profile & Skills) and confirm decisions.\n', options: { fontSize: 7.5, color: textMain } },
+                { text: '• Grant Delaware team platform access to ProFinda INT environment.\n', options: { fontSize: 7.5, color: textMain } },
+                { text: '• Conduct Design Sessions #2 (Engagements) on 25/09/2026.\n', options: { fontSize: 7.5, color: textMain } },
+                { text: '• Draft Solution Design Documentation (SDD) & Config Workbook.', options: { fontSize: 7.5, color: textMain } }
+            ], { x: 6.93, y: 2.55, w: 5.7, h: 1.3, fontFace: 'Segoe UI', lineSpacing: 9, margin: 0 });
 
-            // Bottom Grid Row (Y: 4.3", Height: 1.65")
-            slide.addShape(pptx.shapes.RECTANGLE, { x: 0.5, y: 4.3, w: 6.0, h: 1.65, fill: headerBg, line: { color: '232d42', width: 1 } });
-            slide.addText('RISKS & ISSUES', { x: 0.62, y: 4.35, w: 5.7, h: 0.2, fontSize: 9.5, bold: true, color: accentBlue, fontFace: 'Segoe UI' });
+            // Bottom Row: RISKS & ISSUES and GENERAL & AOB (Y: 4.0, H: 1.55")
+            slide.addShape(pptx.shapes.RECTANGLE, { x: 0.5, y: 4.0, w: 6.0, h: 1.55, fill: headerBg, line: { color: '232d42', width: 1 } });
+            slide.addText('RISKS & ISSUES', { x: 0.6, y: 4.05, w: 5.7, h: 0.2, fontSize: 9.0, bold: true, color: accentBlue, fontFace: 'Segoe UI' });
             slide.addText([
-                { text: '• No Overdue Tasks: 0 overdue tasks reported across all streams.\n', options: { fontSize: 8.0, color: textGreen } },
-                { text: '• Dependency Tracking: Timely sign-off on SDD decisions required by 23/10/2026.\n', options: { fontSize: 8.0, color: textMain } },
-                { text: '• Environment Setup: Verification of integration credentials in progress.', options: { fontSize: 8.0, color: textMain } }
-            ], { x: 0.62, y: 4.58, w: 5.7, h: 1.3, fontFace: 'Segoe UI', margin: 0 });
+                { text: '• No Overdue Tasks: 0 overdue tasks reported across all streams.\n', options: { fontSize: 7.5, color: textGreen } },
+                { text: '• Dependency Tracking: Timely sign-off on SDD decisions required by 23/10/2026.\n', options: { fontSize: 7.5, color: textMain } },
+                { text: '• Environment Setup: Verification of integration credentials in progress.', options: { fontSize: 7.5, color: textMain } }
+            ], { x: 0.6, y: 4.25, w: 5.7, h: 1.25, fontFace: 'Segoe UI', lineSpacing: 9, margin: 0 });
 
-            slide.addShape(pptx.shapes.RECTANGLE, { x: 6.83, y: 4.3, w: 6.0, h: 1.65, fill: headerBg, line: { color: '232d42', width: 1 } });
-            slide.addText('GENERAL & AOB', { x: 6.95, y: 4.35, w: 5.7, h: 0.2, fontSize: 9.5, bold: true, color: accentBlue, fontFace: 'Segoe UI' });
+            slide.addShape(pptx.shapes.RECTANGLE, { x: 6.83, y: 4.0, w: 6.0, h: 1.55, fill: headerBg, line: { color: '232d42', width: 1 } });
+            slide.addText('GENERAL & AOB', { x: 6.93, y: 4.05, w: 5.7, h: 0.2, fontSize: 9.0, bold: true, color: accentBlue, fontFace: 'Segoe UI' });
             slide.addText([
-                { text: '• Weekly Cadence: Weekly status meeting held every Tuesday.\n', options: { fontSize: 8.0, color: textMain } },
-                { text: '• Document Storage: All meeting decks uploaded to Planning G Drive.\n', options: { fontSize: 8.0, color: textMain } },
-                { text: '• Commercial Milestone: 40% milestone (€91,732.80) triggered upon SDD sign-off.', options: { fontSize: 8.0, color: textMain } }
-            ], { x: 6.95, y: 4.58, w: 5.7, h: 1.3, fontFace: 'Segoe UI', margin: 0 });
+                { text: '• Weekly Cadence: Weekly status meeting held every Tuesday.\n', options: { fontSize: 7.5, color: textMain } },
+                { text: '• Document Storage: All meeting decks uploaded to Planning G Drive.\n', options: { fontSize: 7.5, color: textMain } },
+                { text: '• Commercial Milestone: 40% milestone (€91,732.80) triggered upon SDD sign-off.', options: { fontSize: 7.5, color: textMain } }
+            ], { x: 6.93, y: 4.25, w: 5.7, h: 1.25, fontFace: 'Segoe UI', lineSpacing: 9, margin: 0 });
 
-            // Slide Footer (Y: 6.15")
-            slide.addText('⚡ ProFinda', { x: 0.5, y: 6.15, w: 3.0, h: 0.25, fontSize: 9.0, bold: true, color: 'FFFFFF', fontFace: 'Segoe UI' });
-            slide.addText('Proprietary & Confidential © ProFinda 2026', { x: 8.5, y: 6.15, w: 4.33, h: 0.25, fontSize: 8.0, color: '94a3b8', fontFace: 'Segoe UI', align: 'right' });
+            // Slide Footer (Y: 5.75")
+            slide.addText('⚡ ProFinda', { x: 0.5, y: 5.75, w: 3.0, h: 0.25, fontSize: 8.5, bold: true, color: 'FFFFFF', fontFace: 'Segoe UI' });
+            slide.addText('Proprietary & Confidential © ProFinda 2026', { x: 8.5, y: 5.75, w: 4.33, h: 0.25, fontSize: 7.5, color: '94a3b8', fontFace: 'Segoe UI', align: 'right' });
 
             pptx.writeFile({ fileName: `Delaware_Weekly_Status_${meetingDateText.replace(/\s+/g, '_')}.pptx` });
         }
@@ -1785,7 +1785,7 @@
             { label: 'Deploy (0%)', start: '2027-01-04', end: '2027-03-08', color: '#34d399' },
             { label: 'Train the trainer (0%)', start: '2027-01-18', end: '2027-01-26', color: '#34d399' },
             { label: 'Hypercare (0%)', start: '2027-03-09', end: '2027-04-01', color: '#fbbf24' },
-            { label: 'Project Progress (28.8%)', start: '2026-07-01', end: '2027-03-30', color: '#38bdf8' }
+            { label: 'Project Progress (31.0%)', start: '2026-07-01', end: '2027-03-30', color: '#38bdf8' }
         ];
 
         // Defined Milestones Dataset mapping to End Dates
@@ -1953,9 +1953,9 @@
             chartInstances.taskPie = new Chart(taskStatusPieCtx, {
                 type: 'pie',
                 data: {
-                    labels: ['Completed (28.0% - 37 Tasks)', 'Not Started (62.9% - 83 Tasks)', 'In Progress (2.3% - 3 Tasks)', 'Scheduled (6.8% - 9 Tasks)'],
+                    labels: ['Completed (28.6% - 38 Tasks)', 'Not Started (60.2% - 80 Tasks)', 'In Progress (4.5% - 6 Tasks)', 'Scheduled (6.8% - 9 Tasks)'],
                     datasets: [{
-                        data: [37, 83, 3, 9],
+                        data: [38, 80, 6, 9],
                         backgroundColor: ['#34d399', '#fbbf24', '#38bdf8', '#94a3b8'],
                         borderWidth: 0
                     }]
@@ -2135,7 +2135,7 @@
             
             const categoryTitles = {
                 Overdue: 'Overdue Tasks (0 Tasks)',
-                Due14: 'Tasks Due in Next 14 Days (10 Tasks)',
+                Due14: 'Tasks Due in Next 14 Days (13 Tasks)',
                 ProFinda: 'ProFinda Owned Tasks Breakdown (60 Tasks)',
                 Delaware: 'Delaware Owned Tasks Breakdown (39 Tasks)',
                 Critical: 'Critical Path Items (20 Items)'
